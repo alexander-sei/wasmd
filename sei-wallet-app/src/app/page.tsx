@@ -64,9 +64,9 @@ function CopyButton({ value, size = 16 }: { value?: string; size?: number }) {
       title="Copy to clipboard"
     >
       {copied ? (
-        <Check className="h-4 w-4 text-green-400 drop-shadow-sm" />
+        <Check size={size} className="text-green-400 drop-shadow-sm" />
       ) : (
-        <Copy className="h-4 w-4 text-gray-400 hover:text-red-400 transition-colors duration-300" />
+        <Copy size={size} className="text-gray-400 hover:text-red-400 transition-colors duration-300" />
       )}
     </Button>
   );
@@ -164,7 +164,7 @@ function WasmdExecuteCard() {
     if (value.trim()) {
       try {
         JSON.parse(value);
-      } catch (error) {
+      } catch {
         setValidationError('Invalid JSON format');
       }
     }
@@ -177,7 +177,7 @@ function WasmdExecuteCard() {
     let parsedMessage;
     try {
       parsedMessage = JSON.parse(message);
-    } catch (error) {
+    } catch {
       setValidationError('Please provide valid JSON message');
       return;
     }
@@ -252,7 +252,7 @@ function WasmdExecuteCard() {
             value={contractAddress}
             onChange={(e) => setContractAddress(e.target.value)}
             placeholder="sei1..."
-            className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700/50 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300 backdrop-blur-sm"
+            className="w-full px-6 py-4 sm:px-8 bg-gray-800/50 border border-gray-700/50 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300 backdrop-blur-sm"
           />
         </div>
         
@@ -262,7 +262,7 @@ function WasmdExecuteCard() {
             value={message}
             onChange={(e) => validateAndSetMessage(e.target.value)}
             placeholder='The contract msg to execute'
-            className={`w-full px-3 py-2 bg-gray-800/50 border rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-300 backdrop-blur-sm min-h-[80px] resize-y font-mono text-sm ${
+            className={`w-full px-6 py-4 sm:px-8 bg-gray-800/50 border rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-300 backdrop-blur-sm min-h-[80px] resize-y font-mono text-sm ${
               validationError ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' : 'border-gray-700/50 focus:ring-red-500/50 focus:border-red-500/50'
             }`}
           />
@@ -312,7 +312,7 @@ function WasmdExecuteCard() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-300">Transaction Hash</label>
             <div className="flex items-center gap-2">
-              <code className="flex-1 px-3 py-2 bg-gray-800/50 border border-gray-700/50 rounded-lg text-gray-100 font-mono text-xs break-all">
+              <code className="flex-1 px-6 py-4 sm:px-8 bg-gray-800/50 border border-gray-700/50 rounded-lg text-gray-100 font-mono text-xs break-all">
                 {hash}
               </code>
               <CopyButton value={hash} />
@@ -330,6 +330,12 @@ function WasmdExecuteCard() {
                 </svg>
               </a>
             </div>
+          </div>
+        )}
+
+        {writeError && (
+          <div className="p-3 bg-red-950/50 border border-red-500/50 rounded-lg">
+            <p className="text-sm text-red-400 font-medium">❌ Transaction failed: {writeError.message}</p>
           </div>
         )}
 
@@ -359,11 +365,14 @@ function AccountInfo() {
     balanceLoading,
     balanceFetching,
     balanceError,
+    balanceErrorDetails,
     balance: balance?.formatted,
     balanceSymbol: balance?.symbol
   });
 
-
+  if (balanceError) {
+    console.error('Balance error:', balanceError);
+  }
 
   // Query the associated Sei address
   const {
@@ -415,7 +424,7 @@ function AccountInfo() {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <AddressCard title="EVM Address" value={address} />
         <AddressCard
           title="Sei Address"
@@ -425,7 +434,7 @@ function AccountInfo() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <MetricCard label="Network" value={chain?.name} />
         <MetricCard
           label="Balance"
@@ -449,8 +458,8 @@ function AccountInfo() {
  * --------------------------------------------------------------------- */
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black px-8 sm:px-12 lg:px-16">
+      <div className="max-w-4xl mx-auto px-8 sm:px-12 lg:px-16 py-12">
         <header className="text-center mb-12">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -473,10 +482,7 @@ export default function Dashboard() {
         {/* Account grid */}
         <AccountInfo />
 
-        <footer className="mt-16 text-center text-xs text-gray-500">
-          Built with <a href="https://docs.sei.io/evm/sei-global-wallet" className="underline-offset-4 hover:underline text-red-400">Sei Global
-          Wallet</a>, ConnectKit &amp; Wagmi
-        </footer>
+
       </div>
     </div>
   );

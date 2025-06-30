@@ -114,7 +114,7 @@ function NetworkCheck() {
             Wrong Network Detected
           </h3>
           <p className="text-red-200 mb-4">
-            You're currently connected to <strong>{chain?.name}</strong>. 
+            You&apos;re currently connected to <strong>{chain?.name}</strong>. 
             This app requires the Sei network to function properly.
           </p>
           <button
@@ -131,8 +131,7 @@ function NetworkCheck() {
 }
 
 export function WalletInfo() {
-  const { address, isConnected, chain, connector } = useAccount();
-  const { data: balance } = useBalance({ address });
+  const { address, isConnected, chain } = useAccount();
   const [contractAddress, setContractAddress] = useState('');
   const [transferTo, setTransferTo] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
