@@ -8,8 +8,8 @@
   /* -------------------------------------------------- */
   /*  Sei brand & redesign variables                   */
   /* -------------------------------------------------- */
-  --sei-red: #ff4747; /* official Sei brand red (approx) */
-  --sei-red-dark: #c53030;
+  --sei-red: #9E1F19; /* official Sei brand red (approx) */
+  --sei-red-dark: #780000;
   --sei-red-gradient: linear-gradient(135deg, var(--sei-red) 0%, var(--sei-red-dark) 100%);
 
   /* Core surface colours */

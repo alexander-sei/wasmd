@@ -391,17 +391,11 @@ function AccountInfo() {
 
   if (!isConnected) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col items-center gap-6"
-      >
-        <Card className="max-w-md w-full neo-card gradient-border hover-lift text-center cyber-grid">
+        <Card className="h-500 w-300 max-w-md w-full neo-card gradient-border hover-lift text-center">
           <CardHeader className="relative z-10">
             <CardTitle className="mb-2 flex flex-col items-center justify-center gap-4">
               <Wallet className="h-10 w-10 text-red-400 drop-shadow-lg glow-red animate-pulse" />
-              <span className="text-xl font-bold text-gray-100 shimmer bg-gradient-to-r from-gray-100 to-red-200 bg-clip-text text-transparent">
+              <span className=" text-xl font-bold text-gray-100 shimmer bg-gradient-to-r from-gray-100 to-red-200 bg-clip-text">
                 Wallet not connected
               </span>
             </CardTitle>
@@ -413,7 +407,6 @@ function AccountInfo() {
             <ConnectKitButton />
           </CardContent>
         </Card>
-      </motion.div>
     );
   }
 
@@ -474,10 +467,7 @@ export default function Dashboard() {
           </p>
         </header>
 
-        {/* Connect Button */}
-        <div className="flex justify-center mb-12">
-          <ConnectKitButton />
-        </div>
+        {/* Connect Button is now rendered conditionally inside AccountInfo to avoid duplication */}
 
         {/* Account grid */}
         <AccountInfo />

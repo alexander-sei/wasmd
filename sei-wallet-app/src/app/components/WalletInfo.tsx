@@ -7,7 +7,6 @@ import { formatEther, parseEther } from 'viem';
 
 // Sei Network Configuration
 const SEI_CHAIN_ID = 1329; // Sei Pacific mainnet
-const SEI_TESTNET_CHAIN_ID = 713715; // Sei Atlantic testnet
 
 // Example ERC20 ABI for smart contract interaction
 const ERC20_ABI = [
@@ -91,7 +90,7 @@ function NetworkCheck() {
     return null;
   }
 
-  const isOnSeiNetwork = chain?.id === SEI_CHAIN_ID || chain?.id === SEI_TESTNET_CHAIN_ID;
+  const isOnSeiNetwork = chain?.id === SEI_CHAIN_ID;
 
   if (isOnSeiNetwork) {
     return null;
@@ -139,7 +138,7 @@ export function WalletInfo() {
   const [seiTransferAmount, setSeiTransferAmount] = useState('');
 
   // Check if user is on the correct network
-  const isOnSeiNetwork = chain?.id === SEI_CHAIN_ID || chain?.id === SEI_TESTNET_CHAIN_ID;
+  const isOnSeiNetwork = chain?.id === SEI_CHAIN_ID;
 
   // Contract reads
   const { data: tokenName } = useReadContract({
