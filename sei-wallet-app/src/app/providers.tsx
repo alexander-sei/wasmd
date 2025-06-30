@@ -14,24 +14,14 @@ const queryClient = new QueryClient();
 // Configure Wagmi with Sei chains
 const config = createConfig(
   getDefaultConfig({
-    // Your app info
-    appName: 'Sei Wallet App',
-    appDescription: 'A Next.js app with Sei Global Wallet integration',
-    appUrl: 'https://family.co', // your app's url
-    appIcon: 'https://family.co/logo.png', // your app's icon, no bigger than 1024x1024px (max. 1MB)
-
-    walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
-
-    // Required API Keys
     chains: [sei, seiTestnet],
     transports: {
       [sei.id]: http(),
-      [seiTestnet.id]: http(),
+      [seiTestnet.id]: http()
     },
-
-    // Required
-    ssr: true,
-  }),
+    walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
+    appName: 'My Sei dApp'
+  })
 );
 
 interface Web3ProvidersProps {
@@ -42,7 +32,12 @@ export function Web3Providers({ children }: Web3ProvidersProps) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <ConnectKitProvider>{children}</ConnectKitProvider>
+        <ConnectKitProvider 
+          mode="dark"
+          theme="midnight"
+        >
+          {children}
+        </ConnectKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
