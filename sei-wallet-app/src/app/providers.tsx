@@ -16,8 +16,8 @@ const config = createConfig(
   getDefaultConfig({
     chains: [sei, seiTestnet],
     transports: {
-      [sei.id]: http(),
-      [seiTestnet.id]: http()
+      [sei.id]: http('https://evm-rpc.sei-apis.com'),
+      [seiTestnet.id]: http('https://evm-rpc-testnet.sei-apis.com')
     },
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
     appName: 'My Sei dApp'

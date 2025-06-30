@@ -4,7 +4,6 @@ import { ConnectKitButton } from 'connectkit';
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Copy, Loader2, Wallet, Check, Network, Send, Code } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
@@ -78,7 +77,7 @@ function CopyButton({ value, size = 16 }: { value?: string; size?: number }) {
  * --------------------------------------------------------------------- */
 function AddressCard({ title, value, loading, error }: { title: string; value?: string; loading?: boolean; error?: boolean }) {
   return (
-    <Card className="h-full web3-card web3-card-glow hover-lift animate-float">
+    <Card className="h-full neo-card">
       <CardHeader className="pb-3 relative z-10">
         <CardTitle className="text-sm font-semibold text-gray-300 uppercase flex items-center gap-2">
           <Wallet className="h-4 w-4 text-red-400 drop-shadow-sm" /> {title}
@@ -108,9 +107,9 @@ function AddressCard({ title, value, loading, error }: { title: string; value?: 
 /** ------------------------------------------------------------------------
  *  Metric Card (Network, Balance)
  * --------------------------------------------------------------------- */
-function MetricCard({ label, value }: { label: string; value?: string }) {
+function MetricCard({ label, value, loading, error }: { label: string; value?: string; loading?: boolean; error?: boolean }) {
   return (
-    <Card className="web3-card gradient-border hover-lift">
+    <Card className="neo-card">
       <CardHeader className="pb-3 relative z-10">
         <CardTitle className="text-sm font-semibold text-gray-300 uppercase flex items-center gap-2">
           {label === 'Network' ? (
@@ -122,9 +121,22 @@ function MetricCard({ label, value }: { label: string; value?: string }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="relative z-10">
-        <p className="text-lg font-bold text-gray-100 shimmer bg-gradient-to-r from-gray-100 to-red-200 bg-clip-text text-transparent">
-          {value ?? '—'}
-        </p>
+        {loading && !value ? (
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin text-red-400 drop-shadow-sm" />
+            <span className="text-lg font-bold text-gray-400">Loading...</span>
+          </div>
+        ) : error ? (
+          <p className="text-lg font-bold text-yellow-400 glow-yellow">
+            Error loading
+          </p>
+        ) : value ? (
+          <p className="text-lg font-bold text-white">
+            {value}
+          </p>
+        ) : (
+          <p className="text-lg font-bold text-yellow-400 glow-yellow">—</p>
+        )}
       </CardContent>
     </Card>
   );
@@ -181,7 +193,7 @@ function WasmdExecuteCard() {
       
       // Convert the JSON string to bytes using proper encoding
       const encoder = new TextEncoder();
-      const msgBytes = encoder.encode(`{\"initiate_withdraw_unlocked\": {}}`);
+      const msgBytes = encoder.encode(minifiedJson);
       
       // Convert bytes to hex string with proper padding
       const msgHex = '0x' + Array.from(msgBytes)
@@ -222,7 +234,7 @@ function WasmdExecuteCard() {
   };
 
   return (
-    <Card className="web3-card gradient-border hover-lift">
+    <Card className="neo-card">
       <CardHeader className="relative z-10">
         <CardTitle className="text-lg font-semibold text-gray-300 flex items-center gap-2">
           <Code className="h-5 w-5 text-red-400 drop-shadow-sm" />
@@ -249,7 +261,7 @@ function WasmdExecuteCard() {
           <textarea
             value={message}
             onChange={(e) => validateAndSetMessage(e.target.value)}
-            placeholder='{"get_balance": {"address": "sei1..."}}'
+            placeholder='The contract msg to execute'
             className={`w-full px-3 py-2 bg-gray-800/50 border rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-300 backdrop-blur-sm min-h-[80px] resize-y font-mono text-sm ${
               validationError ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' : 'border-gray-700/50 focus:ring-red-500/50 focus:border-red-500/50'
             }`}
@@ -260,13 +272,6 @@ function WasmdExecuteCard() {
           <div className="text-xs text-gray-500 space-y-1">
             <p>Examples:</p>
             <div className="space-y-1 font-mono">
-              <button
-                type="button"
-                onClick={() => validateAndSetMessage('{"get_balance": {"address": "sei1example"}}')}
-                className="block text-left hover:text-gray-300 transition-colors"
-              >
-                • {`{"get_balance": {"address": "sei1example"}}`} 
-              </button>
               <button
                 type="button"
                 onClick={() => validateAndSetMessage('{"transfer": {"recipient": "sei1example", "amount": "1000"}}')}
@@ -343,7 +348,22 @@ function WasmdExecuteCard() {
  * --------------------------------------------------------------------- */
 function AccountInfo() {
   const { address, isConnected, chain } = useAccount();
-  const { data: balance } = useBalance({ address });
+  const { data: balance, isLoading: balanceLoading, isFetching: balanceFetching, isError: balanceError, error: balanceErrorDetails } = useBalance({ 
+    address,
+  });
+
+  // Debug logging
+  console.log('Balance Debug:', {
+    address,
+    isConnected,
+    balanceLoading,
+    balanceFetching,
+    balanceError,
+    balance: balance?.formatted,
+    balanceSymbol: balance?.symbol
+  });
+
+
 
   // Query the associated Sei address
   const {
@@ -368,7 +388,7 @@ function AccountInfo() {
         transition={{ duration: 0.5 }}
         className="flex flex-col items-center gap-6"
       >
-        <Card className="max-w-md w-full web3-card gradient-border hover-lift text-center cyber-grid">
+        <Card className="max-w-md w-full neo-card gradient-border hover-lift text-center cyber-grid">
           <CardHeader className="relative z-10">
             <CardTitle className="mb-2 flex flex-col items-center justify-center gap-4">
               <Wallet className="h-10 w-10 text-red-400 drop-shadow-lg glow-red animate-pulse" />
@@ -410,19 +430,16 @@ function AccountInfo() {
         <MetricCard
           label="Balance"
           value={balance?.formatted ? `${parseFloat(balance.formatted).toFixed(4)} ${balance.symbol}` : undefined}
+          loading={balanceFetching}
+          error={balanceError}
         />
       </div>
 
       {/* CosmWasm Contract Execution */}
       <WasmdExecuteCard />
 
-      {seiAddress && (
-        <div className="text-center">
-          <Badge variant="outline" className="text-red-400 border-red-500/50 bg-red-950/50 py-3 px-6 backdrop-blur-sm shadow-neon hover:shadow-neon-intense transition-all duration-300 animate-pulse hover:animate-none">
-            Use your Sei address for <span className="font-semibold mx-1 shimmer bg-gradient-to-r from-red-200 to-red-400 bg-clip-text text-transparent">ambassador gringot rewards</span>
-          </Badge>
-        </div>
-      )}
+
+  
     </motion.section>
   );
 }
