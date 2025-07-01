@@ -4,7 +4,7 @@ import { ConnectKitButton } from 'connectkit';
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, Loader2, Wallet, Check, Network, Send, Code } from 'lucide-react';
+import { Copy, Wallet, Check, Network, Send, Code } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { stringToHex } from 'viem';
@@ -86,7 +86,6 @@ function AddressCard({ title, value, loading, error }: { title: string; value?: 
       <CardContent className="relative z-10">
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Loader2 className="h-4 w-4 animate-spin text-red-400 drop-shadow-sm" /> 
             <span className="loading-skeleton w-20 h-4 rounded"></span>
           </div>
         ) : error || !value ? (
@@ -123,7 +122,6 @@ function MetricCard({ label, value, loading, error }: { label: string; value?: s
       <CardContent className="relative z-10">
         {loading && !value ? (
           <div className="flex items-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin text-red-400 drop-shadow-sm" />
             <span className="text-lg font-bold text-gray-400">Loading...</span>
           </div>
         ) : error ? (
@@ -297,7 +295,6 @@ function WasmdExecuteCard() {
         >
           {isPending || isConfirming ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {isPending ? 'Executing...' : 'Confirming...'}
             </>
           ) : (
@@ -391,7 +388,7 @@ function AccountInfo() {
 
   if (!isConnected) {
     return (
-        <Card className="h-500 w-300 max-w-md w-full neo-card gradient-border hover-lift text-center">
+        <Card className="h-500 w-300 max-w-md w-full neo-card gradient-border text-center">
           <CardHeader className="relative z-10">
             <CardTitle className="mb-2 flex flex-col items-center justify-center gap-4">
               <Wallet className="h-10 w-10 text-red-400 drop-shadow-lg glow-red animate-pulse" />
@@ -460,14 +457,13 @@ export default function Dashboard() {
             transition={{ duration: 0.6 }}
             className="text-4xl font-bold text-gray-100 mb-4"
           >
-            Sei Account Dashboard
+            Sei wasmd precompile tool
           </motion.h1>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-6">
-            Connect your Sei Global Wallet, view your addresses, and interact with CosmWasm contracts.
+            Connect your wallet,view your addresses, and interact with CosmWasm contracts via the wasmd precompile.
           </p>
         </header>
 
-        {/* Connect Button is now rendered conditionally inside AccountInfo to avoid duplication */}
 
         {/* Account grid */}
         <AccountInfo />
