@@ -1,16 +1,22 @@
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { clsx } from "clsx"
 
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+>(({ className, style, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
+    className={clsx(
+      "border-2 rounded-2xl border-[rgba(255,255,255,0.06)] bg-[#141414] text-card-foreground shadow-[0_0_10px_rgba(255,71,71,0.3),_0_6px_18px_rgba(0,0,0,0.65)] p-0 m-0",
       className
     )}
+    style={{
+      borderRadius: '16px',
+      padding: '6px',
+      margin: '10px',
+      ...style
+    }}
     {...props}
   />
 ))
@@ -22,7 +28,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 px-8 md:px-12 py-8", className)}
+    className={clsx("flex flex-col p-0 m-0 gap-0", className)}
     {...props}
   />
 ))
@@ -34,8 +40,8 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+    className={clsx(
+      "text-2xl leading-none tracking-tight p-0 m-0",
       className
     )}
     {...props}
@@ -49,7 +55,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={clsx("text-sm text-muted-foreground p-0 m-0", className)}
     {...props}
   />
 ))
@@ -59,7 +65,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("px-8 md:px-12 pb-8 pt-0", className)} {...props} />
+  <div ref={ref} className={clsx("p-0 m-0", className)} {...props} />
 ))
 CardContent.displayName = "CardContent"
 
@@ -69,7 +75,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
+    className={clsx("flex items-center p-0 m-0 gap-0", className)}
     {...props}
   />
 ))

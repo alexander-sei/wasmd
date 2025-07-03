@@ -3,9 +3,7 @@
 import { ConnectKitButton } from 'connectkit';
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Copy, Wallet, Check, Network, Send, Code } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { stringToHex } from 'viem';
 
@@ -56,19 +54,17 @@ function CopyButton({ value, size = 16 }: { value?: string; size?: number }) {
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="hover:bg-gray-800/50 hover:shadow-neon transition-all duration-300 backdrop-blur-sm border border-gray-700/50 hover:border-red-500/30"
+    <button
+      className="ml-2 h-8 w-8 bg-gray-800/30 hover:bg-gray-700/50 border border-gray-600/40 hover:border-red-500/60 rounded-lg transition-all duration-300 backdrop-blur-sm group hover:shadow-lg hover:shadow-red-500/20"
       onClick={copyHandler}
       title="Copy to clipboard"
     >
       {copied ? (
-        <Check size={size} className="text-green-400 drop-shadow-sm" />
+        <Check size={size} className="text-green-400 drop-shadow-sm animate-pulse" />
       ) : (
-        <Copy size={size} className="text-gray-400 hover:text-red-400 transition-colors duration-300" />
+        <Copy size={size} className="text-gray-300 group-hover:text-red-400 transition-colors duration-300 drop-shadow-sm" />
       )}
-    </Button>
+    </button>
   );
 }
 
@@ -78,20 +74,20 @@ function CopyButton({ value, size = 16 }: { value?: string; size?: number }) {
 function AddressCard({ title, value, loading, error }: { title: string; value?: string; loading?: boolean; error?: boolean }) {
   return (
     <Card className="h-full neo-card">
-      <CardHeader className="pb-3 relative z-10">
-        <CardTitle className="text-sm font-semibold text-gray-300 uppercase flex items-center gap-2">
+      <CardHeader className="relative z-10">
+        <CardTitle className="text-sm text-gray-300 flex items-center">
           <Wallet className="h-4 w-4 text-red-400 drop-shadow-sm" /> {title}
         </CardTitle>
       </CardHeader>
       <CardContent className="relative z-10">
         {loading ? (
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center text-sm text-gray-400">
             <span className="loading-skeleton w-20 h-4 rounded"></span>
           </div>
         ) : error || !value ? (
           <p className="text-sm text-yellow-400 glow-yellow">Not linked yet</p>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <code className="whitespace-pre-wrap break-all font-mono text-xs rounded-lg p-3 code-block text-gray-100 flex-1 shadow-neon">
               {value}
             </code>
@@ -109,8 +105,8 @@ function AddressCard({ title, value, loading, error }: { title: string; value?: 
 function MetricCard({ label, value, loading, error }: { label: string; value?: string; loading?: boolean; error?: boolean }) {
   return (
     <Card className="neo-card">
-      <CardHeader className="pb-3 relative z-10">
-        <CardTitle className="text-sm font-semibold text-gray-300 uppercase flex items-center gap-2">
+      <CardHeader className="relative z-10">
+        <CardTitle className="text-sm text-gray-300 flex items-center">
           {label === 'Network' ? (
             <Network className="h-4 w-4 text-red-400 drop-shadow-sm" />
           ) : (
@@ -121,19 +117,19 @@ function MetricCard({ label, value, loading, error }: { label: string; value?: s
       </CardHeader>
       <CardContent className="relative z-10">
         {loading && !value ? (
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-gray-400">Loading...</span>
+          <div className="flex items-center">
+            <span className="text-lg  text-gray-400">Loading...</span>
           </div>
         ) : error ? (
-          <p className="text-lg font-bold text-yellow-400 glow-yellow">
+          <p className="text-lg  text-yellow-400 glow-yellow">
             Error loading
           </p>
         ) : value ? (
-          <p className="text-lg font-bold text-white">
+          <p className="text-lg  text-white">
             {value}
           </p>
         ) : (
-          <p className="text-lg font-bold text-yellow-400 glow-yellow">—</p>
+          <p className="text-lg  text-yellow-400 glow-yellow">—</p>
         )}
       </CardContent>
     </Card>
@@ -234,7 +230,7 @@ function WasmdExecuteCard() {
   return (
     <Card className="neo-card">
       <CardHeader className="relative z-10">
-        <CardTitle className="text-lg font-semibold text-gray-300 flex items-center gap-2">
+        <CardTitle className="text-lg  text-gray-300 flex items-center">
           <Code className="h-5 w-5 text-red-400 drop-shadow-sm" />
           CosmWasm Contract Execution
         </CardTitle>
@@ -242,8 +238,8 @@ function WasmdExecuteCard() {
           Execute a function on a CosmWasm contract via the wasmd precompile
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 relative z-10">
-        <div className="space-y-2">
+      <CardContent className="relative z-10">
+        <div>
           <label className="text-sm font-medium text-gray-300">Contract Address</label>
           <input
             type="text"
@@ -254,7 +250,7 @@ function WasmdExecuteCard() {
           />
         </div>
         
-        <div className="space-y-2">
+        <div>
           <label className="text-sm font-medium text-gray-300">Message (JSON)</label>
           <textarea
             value={message}
@@ -267,9 +263,9 @@ function WasmdExecuteCard() {
           {validationError && (
             <p className="text-sm text-red-400">{validationError}</p>
           )}
-          <div className="text-xs text-gray-500 space-y-1">
+          <div className="text-xs text-gray-500">
             <p>Examples:</p>
-            <div className="space-y-1 font-mono">
+            <div className="font-mono">
               <button
                 type="button"
                 onClick={() => validateAndSetMessage('{"transfer": {"recipient": "sei1example", "amount": "1000"}}')}
@@ -288,7 +284,7 @@ function WasmdExecuteCard() {
           </div>
         </div>
 
-        <Button
+        <button
           onClick={executeContract}
           disabled={!contractAddress || !message || isPending || isConfirming}
           className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-none shadow-neon hover:shadow-neon-intense transition-all duration-300"
@@ -299,16 +295,16 @@ function WasmdExecuteCard() {
             </>
           ) : (
             <>
-              <Send className="mr-2 h-4 w-4" />
+              <Send className="h-4 w-4" />
               Execute Contract
             </>
           )}
-        </Button>
+        </button>
 
         {hash && (
-          <div className="space-y-2">
+          <div>
             <label className="text-sm font-medium text-gray-300">Transaction Hash</label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <code className="flex-1 px-6 py-4 sm:px-8 bg-gray-800/50 border border-gray-700/50 rounded-lg text-gray-100 font-mono text-xs break-all">
                 {hash}
               </code>
@@ -319,7 +315,7 @@ function WasmdExecuteCard() {
                 href={`https://seitrace.com/tx/${hash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-red-400 hover:text-red-300 underline underline-offset-4 hover:underline-offset-2 transition-all duration-300"
+                className="inline-flex items-center text-sm text-red-400 hover:text-red-300 underline underline-offset-4 hover:underline-offset-2 transition-all duration-300"
               >
                 <span>View on SeiTrace</span>
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,7 +357,7 @@ function AccountInfo() {
     isConnected,
     balanceLoading,
     balanceFetching,
-    balanceError,
+    balanceError, 
     balanceErrorDetails,
     balance: balance?.formatted,
     balanceSymbol: balance?.symbol
@@ -390,15 +386,12 @@ function AccountInfo() {
     return (
         <Card className="h-500 w-300 max-w-md w-full neo-card gradient-border text-center">
           <CardHeader className="relative z-10">
-            <CardTitle className="mb-2 flex flex-col items-center justify-center gap-4">
+            <CardTitle className="flex flex-col items-center justify-center">
               <Wallet className="h-10 w-10 text-red-400 drop-shadow-lg glow-red animate-pulse" />
-              <span className=" text-xl font-bold text-gray-100 shimmer bg-gradient-to-r from-gray-100 to-red-200 bg-clip-text">
+              <span className=" text-xl  text-gray-100 shimmer bg-gradient-to-r from-gray-100 to-red-200 bg-clip-text">
                 Wallet not connected
               </span>
             </CardTitle>
-            <CardDescription className="text-gray-400">
-              Connect your wallet to display account metrics &amp; interact with CosmWasm contracts
-            </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center relative z-10">
             <ConnectKitButton />
@@ -408,13 +401,8 @@ function AccountInfo() {
   }
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div className="flex flex-col"> 
+      <div>
         <AddressCard title="EVM Address" value={address} />
         <AddressCard
           title="Sei Address"
@@ -424,7 +412,7 @@ function AccountInfo() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div>
         <MetricCard label="Network" value={chain?.name} />
         <MetricCard
           label="Balance"
@@ -435,11 +423,10 @@ function AccountInfo() {
       </div>
 
       {/* CosmWasm Contract Execution */}
-      <WasmdExecuteCard />
-
-
-  
-    </motion.section>
+      <div className="mt-24">
+        <WasmdExecuteCard />
+      </div>
+    </div>
   );
 }
 
@@ -448,18 +435,11 @@ function AccountInfo() {
  * --------------------------------------------------------------------- */
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black px-8 sm:px-12 lg:px-16">
-      <div className="max-w-4xl mx-auto px-8 sm:px-12 lg:px-16 py-12">
-        <header className="text-center mb-12">
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-4xl font-bold text-gray-100 mb-4"
-          >
-            Sei wasmd precompile tool
-          </motion.h1>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex justify-center items-start">
+      <div className="w-[60vw]">
+        <header className="text-center">
+       <h1 className='text-5xl font-bold text-white mb-4'> Sei wasmd precompile tool</h1>
+          <p className="text-lg text-gray-400 mx-auto">
             Connect your wallet,view your addresses, and interact with CosmWasm contracts via the wasmd precompile.
           </p>
         </header>

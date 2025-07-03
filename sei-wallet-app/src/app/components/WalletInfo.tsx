@@ -60,7 +60,7 @@ function AccountInfo() {
 
   return (
     <div className="account-info bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
-      <h3 className="text-xl font-semibold mb-4 text-white">Account Information</h3>
+      <h3 className="text-xl  mb-4 text-white">Account Information</h3>
       <div className="space-y-4">
         <div>
           <p className="text-gray-100">
@@ -109,7 +109,7 @@ function NetworkCheck() {
           </svg>
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-red-300 mb-2">
+          <h3 className="text-lg  text-red-300 mb-2">
             Wrong Network Detected
           </h3>
           <p className="text-red-200 mb-4">
@@ -212,7 +212,7 @@ export function WalletInfo() {
       {isConnected && (
         <div className={`bg-gradient-to-r from-blue-900/50 to-indigo-900/50 p-6 rounded-xl border border-blue-700 shadow-lg ${!isOnSeiNetwork ? 'opacity-60' : ''}`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">Send SEI Tokens</h2>
+            <h2 className="text-xl  text-white">Send SEI Tokens</h2>
             {!isOnSeiNetwork && (
               <span className="text-sm text-red-300 font-medium bg-red-900/50 px-2 py-1 rounded">
                 Requires Sei Network
@@ -264,7 +264,7 @@ export function WalletInfo() {
       {isConnected && (
         <div className={`bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-xl ${!isOnSeiNetwork ? 'opacity-60' : ''}`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">ERC20 Token Interaction</h2>
+            <h2 className="text-xl  text-white">ERC20 Token Interaction</h2>
             {!isOnSeiNetwork && (
               <span className="text-sm text-red-300 font-medium bg-red-900/50 px-2 py-1 rounded">
                 Requires Sei Network
@@ -349,29 +349,6 @@ export function WalletInfo() {
             >
               {isTokenTransferPending ? 'Transferring...' : 'Transfer Tokens'}
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Information Panel */}
-      {!isConnected && (
-        <div className="bg-gradient-to-r from-amber-900/50 to-orange-900/50 p-6 rounded-xl border border-amber-700">
-          <h3 className="text-lg font-semibold text-amber-300 mb-2">
-            Welcome to Sei Global Wallet Demo
-          </h3>
-          <p className="text-amber-200 mb-4">
-            Connect your wallet using familiar login methods like Google, Twitter, or Telegram. 
-            No browser extension required!
-          </p>
-          <div className="text-sm text-amber-200">
-            <p className="mb-1">🌟 <strong>Features:</strong></p>
-            <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>Social login integration</li>
-              <li>Cross-app wallet persistence</li>
-              <li>Native SEI transfers</li>
-              <li>ERC20 token interactions</li>
-              <li>Self-custodial security</li>
-            </ul>
           </div>
         </div>
       )}
