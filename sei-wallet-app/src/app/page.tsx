@@ -403,7 +403,16 @@ function AccountInfo() {
   return (
     <div className="flex flex-col"> 
       <div>
-        <AddressCard title="EVM Address" value={address} />
+        <Card className="h-full neo-card">
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-sm text-gray-300 flex items-center">
+              <Wallet className="h-4 w-4 text-red-400 drop-shadow-sm" /> Wallet
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="relative z-10 flex justify-center">
+            <ConnectKitButton />
+          </CardContent>
+        </Card>
         <AddressCard
           title="Sei Address"
           value={seiAddress as string}
