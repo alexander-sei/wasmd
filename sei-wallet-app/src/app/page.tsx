@@ -139,7 +139,7 @@ function MetricCard({ label, value, loading, error }: { label: string; value?: s
 /** ------------------------------------------------------------------------
  *  Wasmd Execute Card
  * --------------------------------------------------------------------- */
-function WasmdExecuteCard() {
+function WasmdExecuteCard({ seiAddress }: { seiAddress?: string }) {
   const [contractAddress, setContractAddress] = useState('');
   const [message, setMessage] = useState('');
   const [validationError, setValidationError] = useState<string>('');
@@ -268,10 +268,10 @@ function WasmdExecuteCard() {
             <div className="font-mono">
               <button
                 type="button"
-                onClick={() => validateAndSetMessage('{"claim": {}}')}
+                onClick={() => validateAndSetMessage(`{"claim": {"address": "${seiAddress ?? 'sei1...'}", "amount": ""}}`)}
                 className="block text-left hover:text-gray-300"
               >
-                • {`{"claim": {}}`} 
+                • {`{"claim": {"address": "${seiAddress ?? 'sei1...'}", "amount": ""}}`} 
               </button>
               <button
                 type="button"
@@ -439,7 +439,7 @@ function AccountInfo() {
 
       {/* CosmWasm Contract Execution */}
       <div className="mt-24">
-        <WasmdExecuteCard />
+        <WasmdExecuteCard seiAddress={seiAddress as string} />
       </div>
     </div>
   );
