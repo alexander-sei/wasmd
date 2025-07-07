@@ -3,7 +3,7 @@
 import { ConnectKitButton } from 'connectkit';
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Copy, Wallet, Check, Network, Send, Code } from 'lucide-react';
+import { Copy, Wallet, Check, Network, Send, Code, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { stringToHex } from 'viem';
 
@@ -76,13 +76,13 @@ function AddressCard({ title, value, loading, error }: { title: string; value?: 
     <Card className="h-full neo-card">
       <CardHeader className="relative z-10">
         <CardTitle className="text-sm text-gray-300 flex items-center">
-          <Wallet className="h-4 w-4 text-red-400 drop-shadow-sm" /> {title}
+          <Wallet className="h-2 w-2 text-red-400 drop-shadow-sm" /> {title}
         </CardTitle>
       </CardHeader>
       <CardContent className="relative z-10">
         {loading ? (
           <div className="flex items-center text-sm text-gray-400">
-            <span className="loading-skeleton w-20 h-4 rounded"></span>
+            <span className="loading-skeleton w-20 2 rounded"></span>
           </div>
         ) : error || !value ? (
           <p className="text-sm text-yellow-400 glow-yellow">Not linked yet</p>
@@ -108,9 +108,9 @@ function MetricCard({ label, value, loading, error }: { label: string; value?: s
       <CardHeader className="relative z-10">
         <CardTitle className="text-sm text-gray-300 flex items-center">
           {label === 'Network' ? (
-            <Network className="h-4 w-4 text-red-400 drop-shadow-sm" />
+            <Network className="h-2 w-2 text-red-400 drop-shadow-sm" />
           ) : (
-            <Wallet className="h-4 w-4 text-red-400 drop-shadow-sm" />
+            <Wallet className="h-2 w-2 text-red-400 drop-shadow-sm" />
           )} 
           {label}
         </CardTitle>
@@ -268,26 +268,33 @@ function WasmdExecuteCard() {
             <div className="font-mono">
               <button
                 type="button"
-                onClick={() => validateAndSetMessage('{"transfer": {"recipient": "sei1example", "amount": "1000"}}')}
-                className="block text-left hover:text-gray-300 transition-colors"
+                onClick={() => validateAndSetMessage('{"claim": {}}')}
+                className="block text-left hover:text-gray-300"
               >
-                • {`{"transfer": {"recipient": "sei1example", "amount": "1000"}}`} 
+                • {`{"claim": {}}`} 
               </button>
               <button
                 type="button"
                 onClick={() => validateAndSetMessage('{"initiate_withdraw_unlocked": {}}')}
-                className="block text-left hover:text-gray-300 transition-colors"
+                className="text-left hover:text-gray-300"
               >
                 • {`{"initiate_withdraw_unlocked": {}}`} 
+              </button>
+              <button
+                type="button"
+                onClick={() => validateAndSetMessage('{"transfer": {"recipient": "sei1example", "amount": "1000"}}')}
+                className="block text-left hover:text-gray-300"
+              >
+                • {`{"transfer": {"recipient": "sei1example", "amount": "1000"}}`} 
               </button>
             </div>
           </div>
         </div>
-
+          <div>
         <button
           onClick={executeContract}
           disabled={!contractAddress || !message || isPending || isConfirming}
-          className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-none shadow-neon hover:shadow-neon-intense transition-all duration-300"
+          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-none shadow-neon-intense flex items-center justify-center gap-6 mx-auto mt-6 px-10 py-6 text-lg rounded-lg"
         >
           {isPending || isConfirming ? (
             <>
@@ -295,11 +302,12 @@ function WasmdExecuteCard() {
             </>
           ) : (
             <>
-              <Send className="h-4 w-4" />
+              <Send className="h-2 w-2" />
               Execute Contract
             </>
           )}
         </button>
+        </div>
 
         {hash && (
           <div>
@@ -317,10 +325,8 @@ function WasmdExecuteCard() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center text-sm text-red-400 hover:text-red-300 underline underline-offset-4 hover:underline-offset-2 transition-all duration-300"
               >
+                <ExternalLink className="h-2 w-2 mr-2" />
                 <span>View on SeiTrace</span>
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
               </a>
             </div>
           </div>
@@ -406,7 +412,7 @@ function AccountInfo() {
         <Card className="h-full neo-card">
           <CardHeader className="relative z-10">
             <CardTitle className="text-sm text-gray-300 flex items-center">
-              <Wallet className="h-4 w-4 text-red-400 drop-shadow-sm" /> Wallet
+              <Wallet className="h-2 w-2 text-red-400 drop-shadow-sm" /> Wallet
             </CardTitle>
           </CardHeader>
           <CardContent className="relative z-10 flex justify-center">

@@ -49,6 +49,35 @@ body {
   --foreground: #ededed;
 }
 
+/* -------------------------------------------------- */
+/*  Utility classes: Neon shadow & nicer button look  */
+/* -------------------------------------------------- */
+.shadow-neon {
+  /* Subtle glow with slight inset for depth */
+  box-shadow: 0 0 8px rgba(255, 71, 71, 0.45), 0 0 2px rgba(255, 255, 255, 0.06) inset;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.shadow-neon:hover {
+  /* Lift and brighten on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(255, 71, 71, 0.6), 0 0 4px rgba(255, 255, 255, 0.08) inset;
+}
+
+/* Tailwind encodes variant classes like `hover:shadow-neon-intense` with an escaped colon */
+.hover\:shadow-neon-intense:hover {
+  box-shadow: 0 0 18px rgba(255, 71, 71, 0.85), 0 0 6px rgba(255, 255, 255, 0.12) inset;
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* Optional: refine disabled state for buttons that use these shadows */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
 
 
 
