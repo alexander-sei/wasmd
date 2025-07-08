@@ -1,20 +1,25 @@
-# Sei Global Wallet Demo App
+# Sei Wallet + Wasmd CosmWasm Demo App
 
-A Next.js application demonstrating Sei Global Wallet integration with smart contract interaction capabilities.
+A full-stack Next.js 15 dApp demonstrating:
+
+• Seamless connection with Sei Global Wallet (social logins supported)  
+• EVM & CosmWasm smart-contract interaction on the Sei network via the new `wasmd` precompile  
+• Modern Tailwind UI, written in TypeScript and powered by Wagmi + ConnectKit
 
 ## Features
 
-- 🚀 **Sei Global Wallet Integration**: Connect using social logins (Google, X, Telegram, email)
-- 💰 **Wallet Information Display**: Shows your wallet address, network info, and SEI balance
-- 🔗 **Smart Contract Interaction**: Read and write to ERC20 contracts
-- 🎨 **Modern UI**: Built with Tailwind CSS and a responsive design
-- ⚡ **Fast Development**: Next.js with TypeScript and hot reloading
+- 🚀 **Sei Global Wallet Integration** – Connect through Google, X, Telegram or e-mail
+- 💰 **Wallet Dashboard** – View your EVM address, corresponding Sei address, network and SEI balance
+- ⚙️ **CosmWasm Precompile** –  
+  - `query` and `execute` any CosmWasm contract through the `0x0000000000000000000000000000000000001002` precompile  
+  - Batch executions supported (function exposed, UI coming soon)
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 with App Router
-- **Wallet Integration**: Sei Global Wallet + Wagmi + ConnectKit
-- **Smart Contracts**: Viem for Ethereum interactions
+- **Framework**: Next.js 15 (App Router)
+- **Wallet / EVM**: Wagmi v2 + ConnectKit + Sei Global Wallet (EIP-6963 discovery)
+- **CosmWasm**: `wasmd` precompile (`0x…1002`) ABI wrapped with Viem
+- **RPC**: `https://evm-rpc.sei-apis.com`
 - **Styling**: Tailwind CSS
 - **Language**: TypeScript
 
@@ -22,115 +27,73 @@ A Next.js application demonstrating Sei Global Wallet integration with smart con
 
 ### Prerequisites
 
-- Node.js 18+ installed
-- A browser that supports modern web standards
+- Node.js ≥18
+- pnpm / npm / yarn
 
 ### Installation
 
-1. Clone this repository:
 ```bash
 git clone <your-repo-url>
 cd sei-wallet-app
+yarn install         # or pnpm install
+yarn run dev
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Run the development server:
-```bash
-npm run dev
-```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+Open http://localhost:3000 in your browser.
 
 ## Usage
 
-### Connecting Your Wallet
+### 1. Connect Wallet
+Click **Connect Wallet** → choose **Sei Global Wallet** → sign in with your favourite provider and approve.
 
-1. Click the "Connect Wallet" button
-2. Choose "Sei Global Wallet" from the wallet options
-3. Sign in using your preferred method (Google, X, Telegram, or email)
-4. Approve the connection
+### 2. Wallet Dashboard
+After connecting the dApp displays:
+- EVM address
+- Sei bech32 address (queried with `getSeiAddr` from the `0x0000000000000000000000000000000000001004` precompile)
+- Network
+- SEI balance
 
-### Viewing Wallet Information
+### 3. CosmWasm Contract Interaction
+The “CosmWasm Contract Execution / Query” cards demonstrate how to call any CW contract from the EVM side:
 
-Once connected, you'll see:
-- Your wallet address
-- Current network (Sei Mainnet or Testnet)
-- SEI token balance
+- **Query**: Calls `query(contract, msg, [])` on the precompile; no gas, view only.
+- **Execute**: Calls `execute(contract, msg, [])` and waits for the transaction receipt.
 
-### Interacting with Smart Contracts
+`msg` expects raw JSON (NOT base64-encoded). The component automatically converts it to bytes/hex required by the precompile.
 
-The app includes an ERC20 token interaction interface:
-
-1. **Reading Contract Data**:
-   - Enter an ERC20 contract address
-   - View token name and your token balance
-
-2. **Transferring Tokens**:
-   - Enter the recipient address
-   - Specify the amount to transfer
-   - Click "Transfer Tokens" to execute the transaction
 
 ## Supported Networks
 
-- **Sei Mainnet** (Chain ID: 1329)
-- **Sei Testnet** (Chain ID: 1328)
+| Network | Chain ID | RPC |
+| ------- | -------- | --- |
+| Sei Mainnet  | 1329 | https://evm-rpc.sei-apis.com |
 
 ## Configuration
 
-### WalletConnect (Optional)
+### WalletConnect (optional)
 
-For additional wallet support, you can add a WalletConnect Project ID:
+Create `.env.local` and add:
 
-1. Get a project ID from [WalletConnect Cloud](https://cloud.walletconnect.com/)
-2. Create a `.env.local` file:
 ```
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<project_id>
 ```
 
 ## Key Files
 
-- `src/app/providers.tsx` - Web3 providers configuration
-- `src/app/components/WalletInfo.tsx` - Main wallet interface component
-- `src/app/page.tsx` - Home page
-- `src/app/layout.tsx` - App layout with providers
-
-## How It Works
-
-### Sei Global Wallet Integration
-
-The app uses the `@sei-js/sei-global-wallet` package which implements EIP-6963 wallet discovery:
-
-```typescript
-// Import enables EIP-6963 discovery
-import '@sei-js/sei-global-wallet/eip6963';
-```
-
-This automatically makes the Sei Global Wallet available to standard wallet connection libraries like ConnectKit.
-
-### Smart Contract Interaction
-
-The app demonstrates both read and write operations:
-
-- **Read Operations**: Get token information without gas fees
-- **Write Operations**: Execute transactions that modify blockchain state
-
-Example ERC20 functions used:
-- `name()` - Get token name
-- `balanceOf(address)` - Get token balance
-- `transfer(address, uint256)` - Transfer tokens
+- `src/app/page.tsx` — dashboard, ERC-20 & CosmWasm components  
+- `src/app/components/WalletInfo.tsx` — detailed EVM wallet utilities  
+- `src/app/providers.tsx` — Wagmi, ConnectKit & chain configuration  
+- `contractlist.csv` — sample CW contract addresses for testing purposes
 
 ## Learn More
 
-- [Sei Global Wallet Documentation](https://docs.sei.io/evm/sei-global-wallet)
-- [Sei Network Documentation](https://docs.sei.io/)
-- [Wagmi Documentation](https://wagmi.sh/)
-- [ConnectKit Documentation](https://docs.family.co/connectkit)
-- [Next.js Documentation](https://nextjs.org/docs)
+- [Wasmd Precompile Docs](https://docs.sei.io/evm/wasmd-precompile)  
+- [Sei Global Wallet](https://docs.sei.io/evm/sei-global-wallet)  
+- [Sei Network](https://docs.sei.io/)  
+- [Wagmi](https://wagmi.sh/)  
+- [ConnectKit](https://family.co/connectkit)  
+- [Next.js](https://nextjs.org/docs)
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+MIT

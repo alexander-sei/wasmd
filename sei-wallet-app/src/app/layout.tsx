@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sei Global Wallet App",
-  description: "A Next.js app with Sei Global Wallet integration",
+  title: "Wasmd precompile App",
+  description: "A Next.js app with a wasmd precompile implementation",
 };
 
 export default function RootLayout({
