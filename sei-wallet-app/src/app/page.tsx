@@ -4,7 +4,7 @@ import { ConnectKitButton } from 'connectkit';
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Copy, Wallet, Check, Network, Send, Code, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { stringToHex } from 'viem';
 
 /**
@@ -36,6 +36,11 @@ const WASMD_PRECOMPILE_ABI = [
     type: 'function',
   },
 ] as const;
+
+/**
+ * Wasmd precompile ABI for query function
+ */
+const WASMD_PRECOMPILE_QUERY_ABI = [{"inputs":[{"internalType":"string","name":"contractAddress","type":"string"},{"internalType":"bytes","name":"msg","type":"bytes"},{"internalType":"bytes","name":"coins","type":"bytes"}],"name":"execute","outputs":[{"internalType":"bytes","name":"response","type":"bytes"}],"stateMutability":"payable","type":"function"},{"inputs":[{"components":[{"internalType":"string","name":"contractAddress","type":"string"},{"internalType":"bytes","name":"msg","type":"bytes"},{"internalType":"bytes","name":"coins","type":"bytes"}],"internalType":"struct IWasmd.ExecuteMsg[]","name":"executeMsgs","type":"tuple[]"}],"name":"execute_batch","outputs":[{"internalType":"bytes[]","name":"responses","type":"bytes[]"}],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint64","name":"codeID","type":"uint64"},{"internalType":"string","name":"admin","type":"string"},{"internalType":"bytes","name":"msg","type":"bytes"},{"internalType":"string","name":"label","type":"string"},{"internalType":"bytes","name":"coins","type":"bytes"}],"name":"instantiate","outputs":[{"internalType":"string","name":"contractAddr","type":"string"},{"internalType":"bytes","name":"data","type":"bytes"}],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"string","name":"contractAddress","type":"string"},{"internalType":"bytes","name":"req","type":"bytes"}],"name":"query","outputs":[{"internalType":"bytes","name":"response","type":"bytes"}],"stateMutability":"view","type":"function"}] as const;
 
 const ADDR_PRECOMPILE_ADDRESS = '0x0000000000000000000000000000000000001004';
 const WASMD_PRECOMPILE_ADDRESS = '0x0000000000000000000000000000000000001002';
@@ -334,7 +339,11 @@ function WasmdExecuteCard({ seiAddress }: { seiAddress?: string }) {
 
         {writeError && (
           <div className="p-3 bg-red-950/50 border border-red-500/50 rounded-lg">
-            <p className="text-sm text-red-400 font-medium">❌ Transaction failed: {writeError.message}</p>
+            <p className="text-sm text-red-400 font-medium">❌ Transaction failed</p>
+            <div className="mt-2 p-2 bg-yellow-950/50 border border-yellow-500/50 rounded">
+              <p className="text-sm text-yellow-300 font-medium">Error Details:</p>
+              <p className="text-sm text-yellow-100 font-mono">{decodeWasmdError(writeError)}</p>
+            </div>
           </div>
         )}
 
@@ -346,6 +355,292 @@ function WasmdExecuteCard({ seiAddress }: { seiAddress?: string }) {
       </CardContent>
     </Card>
   );
+}
+
+/** ------------------------------------------------------------------------
+ *  Wasmd Query Card
+ * --------------------------------------------------------------------- */
+function WasmdQueryCard() {
+  const [contractAddress, setContractAddress] = useState('');
+  const [message, setMessage] = useState('');
+  const [validationError, setValidationError] = useState<string>('');
+  const [decodedResponse, setDecodedResponse] = useState<string>('');
+  const [revertReason, setRevertReason] = useState<string>('');
+
+  // Prepare hex-encoded query msg whenever message changes
+  const prepareMsgHex = (): `0x${string}` | undefined => {
+    if (!message.trim()) return undefined;
+    try {
+      const parsed = JSON.parse(message);
+      const minifiedJson = JSON.stringify(parsed);
+      const encoder = new TextEncoder();
+      const msgBytes = encoder.encode(minifiedJson);
+      const msgHex = '0x' + Array.from(msgBytes)
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join('');
+      return msgHex as `0x${string}`;
+    } catch {
+      return undefined;
+    }
+  };
+
+  const msgHex = prepareMsgHex();
+
+  const {
+    data: queryData,
+    isError: queryError,
+    error: queryErrorDetails,
+    isLoading: queryLoading,
+    refetch: refetchQuery,
+  } = useReadContract({
+    address: WASMD_PRECOMPILE_ADDRESS,
+    abi: WASMD_PRECOMPILE_QUERY_ABI,
+    functionName: 'query',
+    args: msgHex && contractAddress ? [contractAddress, msgHex] : undefined,
+    query: {
+      // Start disabled; user triggers manually
+      enabled: false,
+    },
+  });
+
+  // Decode response whenever queryData updates
+  useEffect(() => {
+    if (queryData && typeof queryData === 'string') {
+      try {
+        const bytes = new Uint8Array(
+          queryData.slice(2).match(/.{2}/g)?.map(b => parseInt(b, 16)) || []
+        );
+        const decoded = new TextDecoder().decode(bytes);
+        setDecodedResponse(decoded);
+      } catch {
+        setDecodedResponse('Unable to decode response');
+      }
+    }
+  }, [queryData]);
+
+  // When queryErrorDetails changes, attempt to decode revert reason
+  useEffect(() => {
+    if (queryErrorDetails) {
+      const reason = decodeWasmdError(queryErrorDetails);
+      setRevertReason(reason);
+    } else {
+      setRevertReason('');
+    }
+  }, [queryErrorDetails]);
+
+  const validateAndSetMessage = (value: string) => {
+    setMessage(value);
+    setValidationError('');
+    if (value.trim()) {
+      try {
+        JSON.parse(value);
+      } catch {
+        setValidationError('Invalid JSON format');
+      }
+    }
+  };
+
+  const queryContract = () => {
+    if (!contractAddress || !msgHex) {
+      setValidationError('Please provide contract address and valid JSON message');
+      return;
+    }
+    // Reset previous revert reason
+    setRevertReason('');
+    console.log('Querying contract with:', {
+      contractAddress,
+      msgHex,
+      originalMessage: message
+    });
+    refetchQuery();
+  };
+
+  return (
+    <Card className="neo-card">
+      <CardHeader className="relative z-10">
+        <CardTitle className="text-lg  text-gray-300 flex items-center">
+          <Code className="h-5 w-5 text-red-400 drop-shadow-sm" />
+          CosmWasm Contract Query
+        </CardTitle>
+        <CardDescription className="text-gray-400">
+          Query contract state via the wasmd precompile
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="relative z-10">
+        <div className="mb-4">
+          <label className="text-sm font-medium text-gray-300">Contract Address</label>
+          <input
+            type="text"
+            value={contractAddress}
+            onChange={(e) => setContractAddress(e.target.value)}
+            placeholder="sei1..."
+            className="mt-1 w-full px-6 py-4 sm:px-8 bg-gray-800/50 border border-gray-700/50 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300 backdrop-blur-sm"
+          />
+        </div>
+
+                <div>
+          <label className="text-sm font-medium text-gray-300">Query Message (JSON)</label>
+          <textarea
+            value={message}
+            onChange={(e) => validateAndSetMessage(e.target.value)}
+            placeholder='{"balance": {"address": "sei1..."}}'
+            className={`w-full px-6 py-4 sm:px-8 bg-gray-800/50 border rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-300 backdrop-blur-sm min-h-[80px] resize-y font-mono text-sm ${
+              validationError ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' : 'border-gray-700/50 focus:ring-red-500/50 focus:border-red-500/50'
+            }`}
+          />
+          {validationError && (
+            <p className="text-sm text-red-400">{validationError}</p>
+          )}
+          <div className="text-xs text-gray-500 mt-2">
+            <p>Supported queries for this contract:</p>
+            <div className="font-mono space-y-1">
+              <button
+                type="button"
+                onClick={() => validateAndSetMessage('{"get_contract_state": {}}')}
+                className="block text-left hover:text-gray-300 transition-colors"
+              >
+                • {`{"get_contract_state": {}}`} - Get contract state
+              </button>
+              <button
+                type="button"
+                onClick={() => validateAndSetMessage('{"get_admins": {}}')}
+                className="block text-left hover:text-gray-300 transition-colors"
+              >
+                • {`{"get_admins": {}}`} - Get contract admins
+              </button>
+              <button
+                type="button"
+                onClick={() => validateAndSetMessage('{"get_sei_balance": {}}')}
+                className="block text-left hover:text-gray-300 transition-colors"
+              >
+                • {`{"get_sei_balance": {}}`} - Get SEI balance
+              </button>
+              <button
+                type="button" 
+                onClick={() => validateAndSetMessage('{"has_address_claimed": {"address": "sei1..."}}')}
+                className="block text-left hover:text-gray-300 transition-colors"
+              >
+                • {`{"has_address_claimed": {"address": "sei1..."}}`} - Check if claimed
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={queryContract}
+          disabled={!contractAddress || !msgHex || queryLoading}
+          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-none shadow-neon-intense flex items-center justify-center gap-6 mx-auto mt-6 px-10 py-6 text-lg rounded-lg"
+        >
+          {queryLoading ? 'Querying...' : 'Query Contract'}
+        </button>
+
+        {queryData && (
+          <div className="mt-6">
+            <label className="text-sm font-medium text-gray-300">Query Response</label>
+            <pre className="w-full px-6 py-4 sm:px-8 bg-gray-800/50 border border-gray-700/50 rounded-lg text-gray-100 font-mono text-xs break-all whitespace-pre-wrap">
+              {decodedResponse || queryData}
+            </pre>
+          </div>
+        )}
+
+        {queryError && (
+          <div className="p-3 bg-red-950/50 border border-red-500/50 rounded-lg mt-4">
+            <p className="text-sm text-red-400 font-medium">❌ Query failed</p>
+            {revertReason && (
+              <div className="mt-2 p-3 bg-yellow-950/50 border border-yellow-500/50 rounded">
+                <p className="text-sm text-yellow-300 font-medium">📋 Decoded Error Message:</p>
+                <p className="text-sm text-yellow-100 font-mono whitespace-pre-wrap">{revertReason}</p>
+              </div>
+            )}
+            {(queryErrorDetails as any)?.cause?.raw && (
+              <div className="mt-2 p-2 bg-gray-800/50 border border-gray-600/50 rounded">
+                <p className="text-xs text-gray-300 font-medium">Raw Error Data:</p>
+                <code className="text-xs text-gray-400 font-mono break-all">{(queryErrorDetails as any).cause.raw}</code>
+              </div>
+            )}
+            <details className="mt-2">
+              <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-300">
+                Show technical details
+              </summary>
+              <pre className="text-xs text-gray-400 mt-1 whitespace-pre-wrap break-all max-h-40 overflow-y-auto">
+                {JSON.stringify(queryErrorDetails, null, 2)}
+              </pre>
+            </details>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/** ------------------------------------------------------------------------
+ *  Utility: decode revert reason bytes to ASCII - Enhanced for wasmd precompile
+ * --------------------------------------------------------------------- */
+export function decodeRevertReason(hex?: string): string {
+  if (!hex || typeof hex !== 'string' || !hex.startsWith('0x')) return '';
+  
+  try {
+    let raw = hex.slice(2);
+    
+    // Case 1: Standard ABI-encoded Error(string) selector (0x08c379a0)
+    if (raw.startsWith('08c379a0') && raw.length > 8 + 64 + 64) {
+      const strLenHex = raw.slice(8 + 64, 8 + 64 + 64);
+      const strLen = parseInt(strLenHex, 16) * 2; // bytes -> hex chars
+      raw = raw.slice(8 + 64 + 64, 8 + 64 + 64 + strLen);
+    }
+    
+    // Convert hex to bytes and decode as UTF-8
+    const bytes = raw.match(/.{2}/g)?.map(b => parseInt(b, 16)) || [];
+    const decoded = new TextDecoder('utf-8', { fatal: false }).decode(new Uint8Array(bytes));
+    
+    // Clean up null bytes and return
+    return decoded.replace(/\0/g, '').trim();
+  } catch (error) {
+    console.warn('Error decoding revert reason:', error);
+    return '';
+  }
+}
+
+/**
+ * Simple error decoder for wasmd precompile errors - just decode raw hex to text
+ */
+export function decodeWasmdError(error: any): string {
+  // Extract hex error data from various possible locations
+  let hexData: string | undefined;
+  
+  // Check for the "raw" field in error.cause (most reliable for contract errors)
+  if (error?.cause?.raw && typeof error.cause.raw === 'string' && error.cause.raw.startsWith('0x')) {
+    hexData = error.cause.raw;
+  }
+  // Check direct hex string
+  else if (typeof error === 'string' && error.startsWith('0x')) {
+    hexData = error;
+  }
+  // Check error.data
+  else if (error?.data && typeof error.data === 'string' && error.data.startsWith('0x')) {
+    hexData = error.data;
+  }
+  // Try to extract hex from error message
+  else if (error?.message && typeof error.message === 'string') {
+    const hexMatch = error.message.match(/0x[a-fA-F0-9]+/);
+    if (hexMatch) {
+      hexData = hexMatch[0];
+    }
+  }
+  
+  // If we found hex data, decode it directly to text
+  if (hexData) {
+    try {
+      const bytes = hexData.slice(2).match(/.{2}/g)?.map(b => parseInt(b, 16)) || [];
+      const decoded = new TextDecoder('utf-8', { fatal: false }).decode(new Uint8Array(bytes));
+      return decoded.replace(/\0/g, '').trim();
+    } catch (e) {
+      console.warn('Failed to decode hex error data:', e);
+    }
+  }
+  
+  // Fallback to original error message
+  return error?.message || 'Unknown error';
 }
 
 /** ------------------------------------------------------------------------
@@ -437,6 +732,11 @@ function AccountInfo() {
         />
       </div>
 
+      {/* CosmWasm Contract Query */}
+      <div className="mt-24">
+        <WasmdQueryCard />
+      </div>
+      
       {/* CosmWasm Contract Execution */}
       <div className="mt-24">
         <WasmdExecuteCard seiAddress={seiAddress as string} />
