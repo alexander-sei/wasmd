@@ -573,38 +573,10 @@ function WasmdQueryCard() {
   );
 }
 
-/** ------------------------------------------------------------------------
- *  Utility: decode revert reason bytes to ASCII - Enhanced for wasmd precompile
- * --------------------------------------------------------------------- */
-export function decodeRevertReason(hex?: string): string {
-  if (!hex || typeof hex !== 'string' || !hex.startsWith('0x')) return '';
-  
-  try {
-    let raw = hex.slice(2);
-    
-    // Case 1: Standard ABI-encoded Error(string) selector (0x08c379a0)
-    if (raw.startsWith('08c379a0') && raw.length > 8 + 64 + 64) {
-      const strLenHex = raw.slice(8 + 64, 8 + 64 + 64);
-      const strLen = parseInt(strLenHex, 16) * 2; // bytes -> hex chars
-      raw = raw.slice(8 + 64 + 64, 8 + 64 + 64 + strLen);
-    }
-    
-    // Convert hex to bytes and decode as UTF-8
-    const bytes = raw.match(/.{2}/g)?.map(b => parseInt(b, 16)) || [];
-    const decoded = new TextDecoder('utf-8', { fatal: false }).decode(new Uint8Array(bytes));
-    
-    // Clean up null bytes and return
-    return decoded.replace(/\0/g, '').trim();
-  } catch (error) {
-    console.warn('Error decoding revert reason:', error);
-    return '';
-  }
-}
-
 /**
  * Simple error decoder for wasmd precompile errors - just decode raw hex to text
  */
-export function decodeWasmdError(error: any): string {
+function decodeWasmdError(error: any): string {
   // Extract hex error data from various possible locations
   let hexData: string | undefined;
   
